@@ -1,9 +1,12 @@
 <template>
   <div class="container">
     <Navbar />
+    <button @click="showPlayer" id="ellipsis">
+      <i class="fas fa-ellipsis-h"></i>
+    </button>
     <div class="content">
-      <Player />
-      <List />
+      <Player v-if="show" />
+      <List v-if="appear"/>
     </div>
   </div>
 </template>
@@ -22,13 +25,40 @@ export default {
     Player,
     List,
   },
+
+  data() {
+    return {
+      show: true,
+      appear: true,
+    };
+  },
+
+  methods: {
+    showPlayer() {
+      this.show = !this.show;
+      this.appear = !this.show;
+    },
+  },
 };
-
-
-
 </script>
 
 <style>
+#ellipsis {
+  position: absolute;
+  top: 12%;
+  left: 3%;
+  display: none;
+
+  font-size: 0.8rem;
+  border-radius: 5px;
+  color: white;
+  outline: none;
+  border: none;
+  padding: 5px 10px;
+  margin: 8px;
+  background: var(--main);
+}
+
 @import url("https://fonts.googleapis.com/css2?family=Acme&display=swap");
 * {
   --main: #011b26ab;
@@ -51,22 +81,20 @@ body {
 }
 
 .container {
-  display: grid;
   width: 100vw;
   height: 100vh;
 }
 
 .content {
-  display: grid;
-  width: 100%;
-  grid-template-columns: 1fr 1.5fr;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 button {
   cursor: pointer;
 }
 
-/* media queries*/
+/* media queries */
 
 @media (max-width: 800px) {
   body {
@@ -76,17 +104,11 @@ button {
     background-attachment: fixed;
   }
 
-  .content {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .List {
-    display: none;
-  }
-
-  #display {
+  #ellipsis {
     display: block;
   }
+
 }
+
+
 </style>
