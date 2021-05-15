@@ -33,6 +33,7 @@ tracks_table = """CREATE TABLE IF NOT EXISTS tracks (
 					artist TEXT,
 					title TEXT,
 					cover_link TEXT,
+					track_link TEXT,
 					duration INTEGER,
 					added_by INTEGER,
 					created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -40,9 +41,8 @@ tracks_table = """CREATE TABLE IF NOT EXISTS tracks (
 				);"""
 
 fav_table_template = """CREATE TABLE IF NOT EXISTS user_{}_favorites (
-						track INTEGER,
+						track INTEGER PRIMARY KEY,
 						FOREIGN KEY (track) REFERENCES tracks (id)
-						ON DELETE CASCADE
 					);"""
 
 
@@ -70,7 +70,7 @@ def add_user(conn,username,password):
 	# generate fav tracks table
 	gen_fav_tracks_table(conn,user["id"])
 
-def add_track(conn,artist,title,cover_link,duration,added_by):
+def add_track(conn,artist,title,cover_link,track_link,duration,added_by):
 	"""
 	Add a new track into the tracks table
 	:param conn:
@@ -81,11 +81,11 @@ def add_track(conn,artist,title,cover_link,duration,added_by):
 	:param added_by:
 	"""
 
-	sql = ''' INSERT INTO tracks (artist,title,cover_link,duration,added_by) 
-	VALUES	(?,?,?,?,?)'''
+	sql = ''' INSERT INTO tracks (artist,title,cover_link,track_link,duration,added_by) 
+	VALUES	(?,?,?,?,?,?)'''
 	try:
 		cur = conn.cursor()
-		cur.execute(sql,(artist,title,cover_link,duration,added_by,))
+		cur.execute(sql,(artist,title,cover_link,track_link,duration,added_by,))
 		conn.commit()
 		return True
 	except Error as e:
@@ -147,6 +147,7 @@ def remove_user(conn,user_id):
 	Removes user from the users table and all user added data
 	:param conn:
 	:param user-id:
+	:return success:
 	"""
 
 	# delete user from users table
@@ -159,10 +160,10 @@ def remove_user(conn,user_id):
 		print(e)
 
 	# delete fav tracks
-	remove_user_fav_tracks(conn,user_id)
-	
+	if not remove_user_fav_tracks(conn,user_id):
+		return False
 	# delete tracks added by user
-	remove_user_added_tracks(conn,user_id)
+	return remove_user_added_tracks(conn,user_id)
 
 
 def remove_user_fav_tracks(conn,user_id):
@@ -170,19 +171,24 @@ def remove_user_fav_tracks(conn,user_id):
 	Deletes the a user's favorites track table
 	:param conn:
 	:param user_id:
+	:return success:
 	"""
 
 	try:
 		cur = conn.cursor()
 		cur.execute(f'DROP TABLE user_{user_id}_favorites')
 		conn.commit()
+		return True
 	except Error as e:
 		print(e)
+		return False
 
 
 def remove_user_added_tracks(conn,user_id):
 	"""
 	Deletes all tracks that were added by user
+	:param user_id:
+	:return success:
 	"""
 
 	sql = 'DELETE FROM tracks WHERE added_by = ?'
@@ -190,8 +196,10 @@ def remove_user_added_tracks(conn,user_id):
 		cur = conn.cursor()
 		cur.execute(sql,(user_id,))
 		conn.commit()
+		return True
 	except Error as e:
 		print(e)
+		return False
 
 
 # SELECT
@@ -231,9 +239,9 @@ def select_track(conn,track_id):
 	cur.execute(sql,(track_id,))
 	
 	tracks = []
-	for(id,artist,title,cover_link,duration,added_by,created_at) in cur:
+	for(track_id,artist,title,cover_link,duration,added_by,created_at) in cur:
 		tracks.append({
-			"id":id,
+			"id":track_id,
 			"artist":artist,
 			"title":title,
 			"cover_link":cover_link,
@@ -277,14 +285,15 @@ def select_favorites(conn,user_id):
 	"""
 
 	sql = f'SELECT track FROM user_{user_id}_favorites'
-	cur= conn.cursor()
+	cur = conn.cursor()
 	cur.execute(sql)
 
 	fav_tracks = []
 	for track in cur:
-		fav_tracks.append({
-			select_track(conn,track)
-		})
+		fav_track = select_track(conn,track)
+		fav_tracks.append(
+			fav_track
+		)
 	return fav_tracks
 
 def create_table(conn,create_table_sql):
@@ -300,6 +309,19 @@ def create_table(conn,create_table_sql):
 	except Error as e:
 		print(e)
 
+def init_tracks(conn):
+	tracks = [
+		{'artist':'Linkin Park','title':'Castle of Glass','cover_link':'./','duration':180,'added_by':0},
+		{'artist':'Paramore','title':'Misery Business','cover_link':'./','duration':180,'added_by':0},
+		{'artist':'Marilyn Mason','title':'The Mistopheles of Lost Angeles','cover_link':'./','duration':180,'added_by':0},
+	]
+
+	for track in tracks:
+		if not add_track(conn,track['artist'],track['title'],track['cover_link'],track['duration'],track['added_by']):
+			return False
+	return True
+
+
 def setup():
 	"""
 	Sets up the sqlite database before the server is run
@@ -310,7 +332,7 @@ def setup():
 		create_table(conn,users_table) # users
 		create_table(conn,tracks_table) # tracks
 		# init_users
-		# init_tracks
+		init_tracks(conn)
 		conn.close()
 
 if __name__ == "__main__":
