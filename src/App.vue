@@ -1,22 +1,19 @@
 <template>
   <div class="container">
     <Navbar />
-    <button @click="showPlayer" id="ellipsis">
-      <i class="fas fa-ellipsis-h"></i>
-    </button>
     <div class="content">
-      <Player v-if="show" />
-      <List v-if="appear"/>
+      <Player />
+      <List />
     </div>
   </div>
 </template>
 
 <script>
-import Navbar from "./components/navbar";
+import Navbar from "./components/Navbar";
 
-import Player from "./components/Player";
+import Player from "./components/PlayerDiv";
 
-import List from "./components/List";
+import List from "./components/MusicList";
 
 export default {
   name: "App",
@@ -25,40 +22,10 @@ export default {
     Player,
     List,
   },
-
-  data() {
-    return {
-      show: true,
-      appear: true,
-    };
-  },
-
-  methods: {
-    showPlayer() {
-      this.show = !this.show;
-      this.appear = !this.show;
-    },
-  },
 };
 </script>
 
 <style>
-#ellipsis {
-  position: absolute;
-  top: 12%;
-  left: 3%;
-  display: none;
-
-  font-size: 0.8rem;
-  border-radius: 5px;
-  color: white;
-  outline: none;
-  border: none;
-  padding: 5px 10px;
-  margin: 8px;
-  background: var(--main);
-}
-
 @import url("https://fonts.googleapis.com/css2?family=Acme&display=swap");
 * {
   --main: #011b26ab;
@@ -68,7 +35,8 @@ export default {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Acme", sans-serif;
+  font-family: "Acme", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
 body {
@@ -78,20 +46,18 @@ body {
   background-position: center;
   background-size: cover;
   background-attachment: fixed;
+  overflow: auto;
 }
 
 .container {
-  width: 100vw;
   height: 100vh;
+  width: 100vw;
+  overflow: auto;
 }
 
 .content {
   display: flex;
   flex-wrap: wrap;
-}
-
-button {
-  cursor: pointer;
 }
 
 /* media queries */
@@ -103,12 +69,5 @@ button {
     background-size: cover;
     background-attachment: fixed;
   }
-
-  #ellipsis {
-    display: block;
-  }
-
 }
-
-
 </style>

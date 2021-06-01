@@ -39,27 +39,49 @@
     <h3>Streamify</h3>
     <div class="dropdown">
       <button class="dropbtn">
-      <i class="far fa-user-circle"></i>
+        <i class="far fa-user-circle"></i>
       </button>
 
       <div class="dropdown-content">
-        <a href="#">Sign In</a>
-        <a href="#">Sign Up</a>
+        <a href="#" @click="toggleModal">Account</a>
       </div>
     </div>
+    <Modal id="modal" v-if="showModal" />
   </div>
 </template>
 
 <script>
+import Modal from "./Modal";
+
 export default {
   name: "Navbar",
+  components: {
+    Modal,
+  },
+
+  data() {
+    return {
+      showModal: false,
+    };
+  },
+
+  methods: {
+    toggleModal() {
+      this.showModal = !this.showModal;
+    },
+  },
 };
 </script>
 
 <style scoped>
+#modal {
+  position: absolute;
+}
+
 /*----- navbar style -----*/
 
 .navbar {
+  position: relative;
   background: var(--main);
   box-shadow: var(--shadow);
   display: flex;
@@ -106,7 +128,7 @@ button {
   z-index: 1;
   left: -450%;
   top: 80%;
-  border-radius:10px;
+  border-radius: 10px;
 }
 
 /* Links inside the dropdown */
@@ -133,5 +155,4 @@ button {
 .dropdown:hover .fa-user-circle {
   color: #fe5046;
 }
-
 </style>
