@@ -37,51 +37,85 @@
       />
     </svg>
     <h3>Streamify</h3>
-    <div class="dropdown">
-      <button class="dropbtn">
-        <i class="far fa-user-circle"></i>
-      </button>
-
-      <div class="dropdown-content">
+    <DropBtn id="user">
+      <template v-slot:button>
+        <button class="dropbtn">
+          <i class="far fa-user-circle"></i>
+        </button>
+      </template>
+      <template v-slot:links>
         <a href="#" @click="toggleModal">Account</a>
-      </div>
-    </div>
-    <Modal id="modal" v-if="showModal" />
+      </template>
+    </DropBtn>
+
+    <Modal class="modal" v-if="showRegister">
+      <form action="#" method="POST">
+        <p id="username">
+          <label>Username <input type="text" name="username" /></label>
+        </p>
+        <p>
+          <label>Password <input type="password" name="password" /></label>
+        </p>
+        <p>
+          <label
+            >Confirm password <input type="password" name="confirm-pass"
+          /></label>
+        </p>
+        <input type="button" name="button" value="Register" id="register" />
+        <p>
+          Already have an account?
+          <span @click="toggleLogin">Sign In</span>
+        </p>
+      </form>
+    </Modal>
+    <Modal v-if="showLogin">
+      <form action="#" method="POST">
+        <p id="username">
+          <label>Username <input type="text" name="username" /></label>
+        </p>
+        <p>
+          <label>Password <input type="password" name="password" /></label>
+        </p>
+        <input type="button" name="button" value="Login" id="Login" />
+        <p>
+          Don't have an account?
+          <span @click="toggleRegister">Sign Up</span>
+        </p>
+      </form>
+    </Modal>
   </div>
 </template>
 
 <script>
+import DropBtn from "./DropBtn";
+
 import Modal from "./Modal";
 
 export default {
   name: "Navbar",
   components: {
     Modal,
+    DropBtn,
   },
 
   data() {
     return {
-      showModal: false,
+      showRegister: false,
     };
   },
 
   methods: {
     toggleModal() {
-      this.showModal = !this.showModal;
+      this.showRegister = !this.showRegister;
     },
   },
 };
 </script>
 
 <style scoped>
-#modal {
-  position: absolute;
-}
-
 /*----- navbar style -----*/
 
 .navbar {
-  position: relative;
   background: var(--main);
   box-shadow: var(--shadow);
   display: flex;
@@ -101,37 +135,19 @@ h3 {
   color: white;
 }
 
-button {
+/* Dropdown Style */
+.dropbtn {
   border: none;
   outline: none;
   background: none;
-}
-
-.fa-user-circle {
-  font-size: 1.7rem;
+  background: none;
   color: white;
+  padding: 5px 20px;
+  font-size: 1.7rem;
+  cursor: pointer;
 }
 
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-  position: relative;
-  display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: var(--main);
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1;
-  left: -450%;
-  top: 80%;
-  border-radius: 10px;
-}
-
-/* Links inside the dropdown */
+/* dropdown content style */
 .dropdown-content a {
   color: white;
   padding: 12px 16px;
@@ -146,13 +162,17 @@ button {
   color: var(--accent);
 }
 
-/* Show the dropdown menu on hover */
-.dropdown:hover .dropdown-content {
-  display: block;
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  color: var(--accent);
 }
 
-/* Change the background color of the dropdown button when the dropdown content is shown */
-.dropdown:hover .fa-user-circle {
-  color: #fe5046;
+/* Modal style */
+.modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 </style>

@@ -1,46 +1,83 @@
 <template>
-  <div class="registration">
-    <form action="#" method="post">
-      <p id="username">
-        <label>Username <input type="text" name="username"/></label>
-      </p>
-      <p>
-        <label>Email <input type="email" name="email"/></label>
-      </p>
-      <p>
-        <label>Password <input type="password" name="password"/></label>
-      </p>
-      <p>
-        <label
-          >Confirm password <input type="password" name="confirm-pass"
-        /></label>
-      </p>
-      <input type="button" name="button" value="Register" id="register" />
-    </form>
+  <div class="registration" :class="{ hide: hideModal }">
+    <div class="background"></div>
+    <div class="content">
+      <Btn class="close" @click="hide()">
+        <i class="fas fa-times"></i>
+      </Btn>
+      <div class="modalcontainer">
+        <slot id="slot"></slot>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import Btn from "./Btn";
+
 export default {
   name: "Modal",
+
+  /* components */
+  components: {
+    Btn,
+  },
+
+  data() {
+    return {
+      hideModal: false,
+    };
+  },
+
+  methods: {
+    hide() {
+      this.hideModal = true;
+    },
+  },
 };
 </script>
 
 <style scoped>
-
-form {
-  text-align: center;
+.close {
+  background: var(--darker);
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }
 
-#register {
-  font-size: 1rem;
-  border-radius: 5px;
+.registration {
+  z-index: 10;
+}
+
+.background {
+  background: var(--gradient);
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+
+}
+
+.content {
+  height: 100vh;
+  position: relative;
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
+
+.hide {
+  z-index: -10;
+  opacity: 0;
+}
+
+.modalcontainer {
+  width: 80%;
+  background: var(--darker);
+  padding: 100px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: var(--shadow);
   color: white;
-  outline: none;
-  border: none;
-  padding: 5px 10px;
-  margin: 8px;
-  background: hsla(0, 4%, 10%, 0.575);
-  box-shadow: 1px 1px 2px 1px hsla(0, 10%, 47%, 0.514);
+  font-size: 1.3rem;
 }
 </style>

@@ -1,14 +1,26 @@
 <template>
-  <div class="player">
+  <div class="player" :class="{ play: progressPercent != 0 && isPlaying }">
+    <!-- song info -->
     <div class="info">
       <h3 id="songTitle">{{ songs[index].songTitle }}</h3>
       <h4 id="artistName">{{ songs[index].artistName }}</h4>
     </div>
-    <div class="coverImg"></div>
-    <div id="progressBar">
-      <div id="progress"></div>
+
+    <!-- cover image -->
+    <div class="coverImg">
+      <img src="../assets/cover.jpg" alt="cover" />
     </div>
 
+    <!-- progress bar -->
+    <div class="progressBox">
+      <span> {{ progressTime }} </span>
+      <div id="progressBar">
+        <div id="progress"></div>
+      </div>
+      <span> {{ totalDuration }} </span>
+    </div>
+
+    <!-- control buttons -->
     <div id="controls">
       <Btn id="shuffle">
         <i class="fas fa-random"></i>
@@ -37,6 +49,12 @@ import Btn from "./Btn";
 
 export default {
   name: "PlayerDiv",
+
+  props: {
+    songs: Array,
+  },
+
+  /* components */
   components: {
     Btn,
   },
@@ -44,119 +62,71 @@ export default {
   data() {
     return {
       current: {},
-
+      totalDuration: "0:00",
       currentTime: 0,
-
+      progressTime: "0:00",
       isPlaying: false,
-
       index: 0,
-
       progressPercent: 0,
-
-      songs: [
-        {
-          songTitle: "Alarm",
-          artistName: "Anne Marie",
-          src: require("../assets/audio (1).mp3"),
-        },
-        {
-          songTitle: "Hold On",
-          artistName: "Chord Overstreet",
-          src: require("../assets/audio (2).mp3"),
-        },
-        {
-          songTitle: "Subeme La Radio",
-          artistName: "Enrique Iglesias",
-          src: require("../assets/audio (3).mp3"),
-        },
-        {
-          songTitle: "Mi Gente",
-          artistName: "J Balvin_ Willy William",
-          src: require("../assets/audio (4).mp3"),
-        },
-        {
-          songTitle: "If the World was Ending",
-          artistName: "JP Saxe",
-          src: require("../assets/audio (5).mp3"),
-        },
-        {
-          songTitle: "You Say",
-          artistName: "Lauren Daigle",
-          src: require("../assets/audio (6).mp3"),
-        },
-        {
-          songTitle: "Maybe Don't",
-          artistName: "Maisie Peters ft JP Saxe",
-          src: require("../assets/audio (7).mp3"),
-        },
-        {
-          songTitle: "Care For You",
-          artistName: "Mario",
-          src: require("../assets/audio (8).mp3"),
-        },
-        {
-          songTitle: "Scared To Be Lonely",
-          artistName: "Martin Garrix_Dua Lipa",
-          src: require("../assets/audio (9).mp3"),
-        },
-        {
-          songTitle: "Perfect",
-          artistName: "Ed Sheeran",
-          src: require("../assets/audio (10).mp3"),
-        },
-        {
-          songTitle: "Let Me Live",
-          artistName: "Rudimental_Major Lazer ft Anne Marie",
-          src: require("../assets/audio (11).mp3"),
-        },
-        {
-          songTitle: "Fire on fire",
-          artistName: "Sam Smith",
-          src: require("../assets/audio (12).mp3"),
-        },
-        {
-          songTitle: "Snowman",
-          artistName: "Sia",
-          src: require("../assets/audio (13).mp3"),
-        },
-      ],
-
       player: new Audio(),
 
     };
   },
 
   methods: {
+    formatTime(time) {
+      var mins = ~~((time % 3600) / 60);
+      var secs = ~~time % 60;
+      var result = "";
+      result += "" + mins + ":" + (secs < 10 ? "0" : "");
+      result += "" + secs;
+      return result;
+    },
+
+    checkEnd() {
+        this.player.addEventListener(
+          "ended",
+          function () {
+            this.index++;
+            if (this.index > this.songs.length - 1) {
+              this.index = 0;
+            }
+
+            this.current = this.songs[this.index];
+            this.player.src = this.current.src;
+            this.player.play();
+          }.bind(this)
+        );
+    },
+
+    updateInfo() {
+      this.player.addEventListener(
+        "timeupdate",
+        function () {
+          this.progressPercent =
+            (this.player.currentTime / this.player.duration) * 100;
+          const progress = document.querySelector("#progress");
+          progress.style.width = `${this.progressPercent}%`;
+
+          this.progressTime = this.formatTime(this.player.currentTime);
+        }.bind(this)
+      );
+
+      this.player.addEventListener(
+        "canplay",
+        function () {
+          this.totalDuration = this.formatTime(this.player.duration);
+        }.bind(this)
+      );
+    },
+
     play() {
       this.current = this.songs[this.index];
       this.player.src = this.current.src;
       this.player.play();
       this.player.currentTime = this.currentTime;
-
-      this.player.addEventListener(
-        "ended",
-        function () {
-          this.index++;
-          if (this.index > this.songs.length - 1) {
-            this.index = 0;
-          }
-
-          this.current = this.songs[this.index];
-          this.player.src = this.current.src;
-          this.player.play();
-        }.bind(this)
-      );
-
-      this.player.addEventListener(
-        "timeupdate",
-        function () {
-          this.progressPercent = (this.player.currentTime/this.player.duration)*100;
-          const progress = document.querySelector('#progress');
-          progress.style.width = `${this.progressPercent}%`;
-          console.log(this.progressPercent);
-        }.bind(this)
-      );
-
+      this.updateInfo();
+      this.checkEnd();
       this.isPlaying = true;
     },
     pause() {
@@ -172,6 +142,8 @@ export default {
 
       this.player.src = this.songs[this.index].src;
       this.player.play();
+      this.updateInfo();
+      this.checkEnd();
       this.isPlaying = true;
     },
     prev() {
@@ -182,6 +154,8 @@ export default {
 
       this.player.src = this.songs[this.index].src;
       this.player.play();
+      this.updateInfo();
+      this.checkEnd();
       this.isPlaying = true;
     },
   },
@@ -192,10 +166,11 @@ export default {
 /*----- player style -----*/
 
 .player {
+  color: white;
   flex-grow: 1.2;
   padding: 20px;
   display: flex;
-  gap: 15px;
+  gap: 30px;
   flex-direction: column;
   align-items: center;
   height: 84vh;
@@ -205,19 +180,61 @@ export default {
 #artistName {
   text-align: center;
   color: white;
-  padding: 3px;
+  padding: 5px;
   text-shadow: 2px 2px 3px hsla(0, 0%, 0%, 0.473);
 }
 
 .coverImg {
-  border-radius: 10px;
   box-shadow: var(--shadow);
+  position: relative;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+}
 
-  width: 70%;
+.coverImg::after {
+  content: "";
+  background: var(--darker);
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform: translate(-42%, 40%);
+}
+
+.coverImg img {
+  width: 100%;
   height: 100%;
-  background: url(../assets/cover.jpg);
-  background-position: center;
-  background-size: cover;
+  border-radius: inherit;
+
+  object-fit: cover;
+  object-position: center;
+
+  animation: rotate 3s linear infinite;
+  animation-play-state: paused;
+}
+
+.player.play .coverImg img {
+  animation-play-state: running;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.progressBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 #progressBar {
@@ -225,6 +242,7 @@ export default {
   height: 3px;
   width: 80%;
   background-color: white;
+  margin: 0 5px;
 }
 
 #progress {
