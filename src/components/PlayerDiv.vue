@@ -1,9 +1,9 @@
 <template>
-  <div class="player" :class="{ play: progressPercent != 0 && isPlaying }">
+  <div class="player" :class="{ play: progressPercent != 0 && isPlaying }" > 
     <!-- song info -->
     <div class="info">
-      <h3 id="songTitle">{{ songs[index].songTitle }}</h3>
-      <h4 id="artistName">{{ songs[index].artistName }}</h4>
+      <h3 id="songTitle"> {{ songs[index].songTitle }} </h3> 
+      <h4 id="artistName"> {{ songs[index].artistName }} </h4>  
     </div>
 
     <!-- cover image -->
@@ -17,27 +17,27 @@
       <div id="progressBar">
         <div id="progress"></div>
       </div>
-      <span> {{ totalDuration }} </span>
+      <span> {{ totalDuration }} </span> 
     </div>
 
     <!-- control buttons -->
     <div id="controls">
-      <Btn id="shuffle">
+      <Btn id="shuffle" @click="emitshuffle">
         <i class="fas fa-random"></i>
       </Btn>
-      <Btn id="prev" @click="prev">
-        <i class="fas fa-step-backward"></i>
+      <Btn id="prev" @click="emitprev">
+        <i class="fas fa-step-backward"></i>  
       </Btn>
-      <Btn id="play" @click="play" v-if="!isPlaying">
+      <Btn id="play"  @click="emitplay" v-if="!isPlaying"> 
         <i class="fas fa-play"></i>
       </Btn>
-      <Btn id="pause" @click="pause" v-if="isPlaying">
+      <Btn id="pause" @click="emitpause" v-if="isPlaying"> 
         <i class="fas fa-pause"></i>
       </Btn>
-      <Btn id="next" @click="next">
+      <Btn id="next" @click="emitnext">  
         <i class="fas fa-step-forward"></i>
       </Btn>
-      <Btn id="fav">
+      <Btn id="fav" @click="$emit('likeCurrent')" :class="{ fav: songs[index].fav }" >
         <i class="fas fa-heart"></i>
       </Btn>
     </div>
@@ -51,7 +51,24 @@ export default {
   name: "PlayerDiv",
 
   props: {
-    songs: Array,
+    songs: {
+      type: Array,
+    },
+    isPlaying: {
+      type: Boolean,
+    },
+    progressTime: {
+      type: String,
+    },
+    totalDuration: {
+      type: String,
+    },
+    progressPercent: {
+      type: Number,
+    },
+    index: {
+      type: Number,
+    },
   },
 
   /* components */
@@ -59,110 +76,36 @@ export default {
     Btn,
   },
 
-  data() {
-    return {
-      current: {},
-      totalDuration: "0:00",
-      currentTime: 0,
-      progressTime: "0:00",
-      isPlaying: false,
-      index: 0,
-      progressPercent: 0,
-      player: new Audio(),
-
-    };
-  },
-
   methods: {
-    formatTime(time) {
-      var mins = ~~((time % 3600) / 60);
-      var secs = ~~time % 60;
-      var result = "";
-      result += "" + mins + ":" + (secs < 10 ? "0" : "");
-      result += "" + secs;
-      return result;
+    emitprev() {
+      this.$emit('playPrev');
+    },
+    emitnext() {
+      this.$emit('playNext');
+    },
+    emitplay() {
+      console.log('play');
+      this.$emit('playCurrent');
+    },
+    emitpause() {
+      this.$emit('pauseCurrent');
     },
 
-    checkEnd() {
-        this.player.addEventListener(
-          "ended",
-          function () {
-            this.index++;
-            if (this.index > this.songs.length - 1) {
-              this.index = 0;
-            }
-
-            this.current = this.songs[this.index];
-            this.player.src = this.current.src;
-            this.player.play();
-          }.bind(this)
-        );
-    },
-
-    updateInfo() {
-      this.player.addEventListener(
-        "timeupdate",
-        function () {
-          this.progressPercent =
-            (this.player.currentTime / this.player.duration) * 100;
-          const progress = document.querySelector("#progress");
-          progress.style.width = `${this.progressPercent}%`;
-
-          this.progressTime = this.formatTime(this.player.currentTime);
-        }.bind(this)
-      );
-
-      this.player.addEventListener(
-        "canplay",
-        function () {
-          this.totalDuration = this.formatTime(this.player.duration);
-        }.bind(this)
-      );
-    },
-
-    play() {
-      this.current = this.songs[this.index];
-      this.player.src = this.current.src;
-      this.player.play();
-      this.player.currentTime = this.currentTime;
-      this.updateInfo();
-      this.checkEnd();
-      this.isPlaying = true;
-    },
-    pause() {
-      this.currentTime = this.player.currentTime;
-      this.isPlaying = false;
-      this.player.pause();
-    },
-    next() {
-      this.index++;
-      if (this.index > this.songs.length - 1) {
-        this.index = 0;
-      }
-
-      this.player.src = this.songs[this.index].src;
-      this.player.play();
-      this.updateInfo();
-      this.checkEnd();
-      this.isPlaying = true;
-    },
-    prev() {
-      this.index--;
-      if (this.index < 0) {
-        this.index = this.songs.length - 1;
-      }
-
-      this.player.src = this.songs[this.index].src;
-      this.player.play();
-      this.updateInfo();
-      this.checkEnd();
-      this.isPlaying = true;
+    emitshuffle() {
+      console.log('shuffling');
+      this.$emit('shuffleList');
     },
   },
+
+ 
 };
 </script>
 
 <style scoped>
+
+.fav {
+  color: #fe5046;
+} 
 /*----- player style -----*/
 
 .player {
@@ -190,18 +133,6 @@ export default {
   width: 300px;
   height: 300px;
   border-radius: 50%;
-}
-
-.coverImg::after {
-  content: "";
-  background: var(--darker);
-  border-radius: 50%;
-  height: 20px;
-  width: 20px;
-  position: absolute;
-  left: 50%;
-  bottom: 50%;
-  transform: translate(-42%, 40%);
 }
 
 .coverImg img {

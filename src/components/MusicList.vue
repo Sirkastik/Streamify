@@ -4,21 +4,22 @@
     <div class="listNav">
       <!-- functionality buttons -->
       <div class="btns">
-        <Btn>
+        <Btn @click="sortlist">
           <i class="fas fa-sort-alpha-up"></i>
         </Btn>
         <Btn>
-          <label for="input">
-            <i class="fas fa-plus"></i>
-          </label>
-          <input
-            type="file"
-            @onchange="uploadAudio"
-            v-model="audio_file"
-            id="input"
-            multiple
-            accept="audio/*"
-          />
+          <form action="#">
+            <label for="input">
+              <i class="fas fa-plus"></i>
+            </label>
+            <input
+              type="file"
+              @onchange="uploadAudio"
+              id="input"
+              multiple
+              accept="audio/*"
+            />
+          </form>
         </Btn>
         <Btn>
           <form class="example" action="#">
@@ -35,21 +36,47 @@
           </button>
         </template>
         <template v-slot:links>
-          <a href="#">All Music</a>
-          <a href="#">Favourites</a>
-          <a href="#">Added Music</a>
+          <a href="#" @click="showAll">All Music</a>
+          <a href="#" @click="showFav">Favourites</a>
+          <a href="#" @click="showAdded">Added Music</a>
         </template>
       </DropBtn>
     </div>
 
-    <!-- list div -->
-    <div class="songList">
+    <div class="songList favSongs" v-if="favList">
       <ul>
-        <li v-for="song in songs" v-bind:key="song.songIndex">
-          <div class="left">{{ song.songTitle }} - {{ song.artistName }}</div>
+        <li
+          v-for="song in favSongs"
+          v-bind:key="song.songIndex"
+          :class="{ fav: song.fav }"
+        >
+          <div class="left" @click="$emit('playSong', song.songIndex)">
+            {{ song.songTitle }} - {{ song.artistName }}
+          </div>
           <div class="right">
             <span>{{ song.duration }}</span>
-            <Btn id="favBtn">
+            <Btn class="favBtn" @click="$emit('likeSong', song.songIndex)">
+              <i class="fas fa-heart"></i>
+            </Btn>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- list div -->
+    <div class="songList allSongs" v-if="allSongs">
+      <ul>
+        <li
+          v-for="song in songs"
+          v-bind:key="song.songIndex"
+          :class="{ fav: song.fav }"
+        >
+          <div class="left" @click="$emit('playSong', song.songIndex)">
+            {{ song.songTitle }} - {{ song.artistName }}
+          </div>
+          <div class="right">
+            <span>{{ song.duration }}</span>
+            <Btn class="favBtn" @click="$emit('likeSong', song.songIndex)">
               <i class="fas fa-heart"></i>
             </Btn>
           </div>
@@ -79,23 +106,49 @@ export default {
 
   data() {
     return {
+      allSongs: true,
+
+      favList: false,
+
+      addedList: false,
+
       favsongs: [],
-      track_file: "",
+
+      file: "",
     };
   },
 
   methods: {
-    checkFav() {
-      return this.songs.fav == true;
+    sortlist() {
+      this.$emit("sortSongs");
     },
-    filter() {
-      this.favsongs;
+
+    showAll() {
+      this.allSongs = true;
+      this.favList = false;
+      this.addedList = false;
     },
-    
+    showFav() {
+      this.allSongs = false;
+      this.addedList = false;
+      this.favList = true;
+    },
+    showAdded() {
+      this.addedList = true;
+      this.allSongs = false;
+      this.favList = false;
+    },
+  },
+
+  computed: {
+    favSongs() {
+      return this.songs.filter((song) => song.fav);
+    },
+
     uploadAudio() {
-      this.audio_file = this.$refs.file.files[0];
+      this.file = this.$refs.file.files[0];
       formData = new formData();
-      formData.append("track_file", this.audio_file);
+      formData.append("file", this.file);
 
       fetch("http://localhost:5000/upload_track", {
         method: "POST",
@@ -194,7 +247,7 @@ li > * {
   margin-right: 20px;
 }
 
-#favBtn {
+.favBtn {
   background: none;
   box-shadow: none;
   padding: 0;
@@ -223,5 +276,9 @@ form button {
 
 form button:hover {
   color: var(--accent);
+}
+
+.fav .favBtn {
+  color: #fe5046;
 }
 </style>
