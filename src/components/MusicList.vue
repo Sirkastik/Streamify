@@ -39,7 +39,11 @@
 
     <div class="songList favSongs" v-if="favList">
       <ul>
-        <li v-for="song in favsongs" v-bind:key="song.songIndex" :class="{ fav: song.fav }" >
+        <li
+          v-for="song in favSongs"
+          v-bind:key="song.songIndex"
+          :class="{ fav: song.fav }"
+        >
           <div class="left" @click="$emit('playSong', song.songIndex)">
             {{ song.songTitle }} - {{ song.artistName }}
           </div>
@@ -56,7 +60,11 @@
     <!-- list div -->
     <div class="songList allSongs" v-if="allSongs">
       <ul>
-        <li v-for="song in songs" v-bind:key="song.songIndex" :class="{ fav: song.fav }" >
+        <li
+          v-for="song in songs"
+          v-bind:key="song.songIndex"
+          :class="{ fav: song.fav }"
+        >
           <div class="left" @click="$emit('playSong', song.songIndex)">
             {{ song.songTitle }} - {{ song.artistName }}
           </div>
@@ -116,14 +124,17 @@ export default {
       this.allSongs = false;
       this.addedList = false;
       this.favList = true;
-      this.favsongs = this.songs.filter(function (e) {
-        return e.fav == true;
-      });
     },
     showAdded() {
       this.addedList = true;
       this.allSongs = false;
       this.favList = false;
+    },
+  },
+
+  computed: {
+    favSongs() {
+      return this.songs.filter((song) => song.fav);
     },
   },
 };
@@ -236,7 +247,6 @@ form button {
 form button:hover {
   color: var(--accent);
 }
-
 
 .fav .favBtn {
   color: #fe5046;
