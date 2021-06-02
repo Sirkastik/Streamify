@@ -4,14 +4,16 @@
     <div class="listNav">
       <!-- functionality buttons -->
       <div class="btns">
-        <Btn>
+        <Btn @click="sortlist">
           <i class="fas fa-sort-alpha-up"></i>
         </Btn>
         <Btn>
-          <label for="input">
-            <i class="fas fa-plus"></i>
-          </label>
-          <input type="file" id="input" multiple accept="audio/*" />
+          <form action="#">
+            <label for="input">
+              <i class="fas fa-plus"></i>
+            </label>
+            <input type="file" id="input" multiple accept="audio/*" />
+          </form>
         </Btn>
         <Btn>
           <form class="example" action="#">
@@ -23,24 +25,44 @@
       <!-- dropdown button -->
       <DropBtn>
         <template v-slot:button>
-          <button class="dropbtn">All Music<i class="fas fa-sort-down"></i></button>
+          <button class="dropbtn">
+            All Music<i class="fas fa-sort-down"></i>
+          </button>
         </template>
         <template v-slot:links>
-          <a href="#">All Music</a>
-          <a href="#">Favourites</a>
-          <a href="#">Added Music</a>
+          <a href="#" @click="showAll">All Music</a>
+          <a href="#" @click="showFav">Favourites</a>
+          <a href="#" @click="showAdded">Added Music</a>
         </template>
       </DropBtn>
     </div>
 
-    <!-- list div -->
-    <div class="songList">
+    <div class="songList favSongs" v-if="favList">
       <ul>
-        <li v-for="song in songs" v-bind:key="song.songIndex">
-          <div class="left">{{ song.songTitle }} - {{ song.artistName }}</div>
+        <li v-for="song in favsongs" v-bind:key="song.songIndex" :class="{ fav: song.fav }" >
+          <div class="left" @click="$emit('playSong', song.songIndex)">
+            {{ song.songTitle }} - {{ song.artistName }}
+          </div>
           <div class="right">
             <span>{{ song.duration }}</span>
-            <Btn id="favBtn">
+            <Btn class="favBtn" @click="$emit('likeSong', song.songIndex)">
+              <i class="fas fa-heart"></i>
+            </Btn>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- list div -->
+    <div class="songList allSongs" v-if="allSongs">
+      <ul>
+        <li v-for="song in songs" v-bind:key="song.songIndex" :class="{ fav: song.fav }" >
+          <div class="left" @click="$emit('playSong', song.songIndex)">
+            {{ song.songTitle }} - {{ song.artistName }}
+          </div>
+          <div class="right">
+            <span>{{ song.duration }}</span>
+            <Btn class="favBtn" @click="$emit('likeSong', song.songIndex)">
               <i class="fas fa-heart"></i>
             </Btn>
           </div>
@@ -59,7 +81,7 @@ export default {
   name: "MusicList",
 
   props: {
-    songs: Array
+    songs: Array,
   },
 
   /* components */
@@ -70,17 +92,39 @@ export default {
 
   data() {
     return {
+      allSongs: true,
+
+      favList: false,
+
+      addedList: false,
+
       favsongs: [],
     };
   },
 
   methods: {
-    checkFav() {
-      return this.songs.fav == true;
+    sortlist() {
+      this.$emit("sortSongs");
     },
-    filter() {
-      this.favsongs
-    }
+
+    showAll() {
+      this.allSongs = true;
+      this.favList = false;
+      this.addedList = false;
+    },
+    showFav() {
+      this.allSongs = false;
+      this.addedList = false;
+      this.favList = true;
+      this.favsongs = this.songs.filter(function (e) {
+        return e.fav == true;
+      });
+    },
+    showAdded() {
+      this.addedList = true;
+      this.allSongs = false;
+      this.favList = false;
+    },
   },
 };
 </script>
@@ -95,7 +139,7 @@ export default {
   border: 2px solid white;
   cursor: pointer;
   display: flex;
-  gap: 5px; 
+  gap: 5px;
 }
 
 /* Links inside the dropdown */
@@ -117,7 +161,6 @@ export default {
   border: 2px solid#fe5046;
   color: #fe5046;
 }
-
 
 #input {
   display: none;
@@ -163,7 +206,7 @@ li > * {
   margin-right: 20px;
 }
 
-#favBtn {
+.favBtn {
   background: none;
   box-shadow: none;
   padding: 0;
@@ -192,5 +235,10 @@ form button {
 
 form button:hover {
   color: var(--accent);
+}
+
+
+.fav .favBtn {
+  color: #fe5046;
 }
 </style>

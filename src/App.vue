@@ -2,10 +2,28 @@
   <div class="container">
     <Navbar />
     <div class="content">
-      <Player 
-      :songs="songs"
+      <Player
+        :songs="songs"
+        :currentIndex="currentIndex"
+        :progressTime="progressTime"
+        :totalDuration="totalDuration"
+        :isPlaying="isPlaying"
+        :progressPercent="progressPercent"
+        :index="currentIndex"
+        @playPrev="prev"
+        @playCurrent="play"
+        @pauseCurrent="pause"
+        @playNext="next"
+        @likeCurrent="likeCurrent"
       />
-      <List :songs="songs" />
+      <!--@shuffleList="shuffle"-->
+
+      <List
+        :songs="songs"
+        @sortSongs="sort"
+        @playSong="setIndex"
+        @likeSong="likeCurrent"
+      />
     </div>
   </div>
 </template>
@@ -29,8 +47,6 @@ export default {
 
   data() {
     return {
-      currentIndex: 0,
-
       songs: [
         {
           songTitle: "Alarm",
@@ -44,14 +60,14 @@ export default {
           artistName: "Chord Overstreet",
           src: require("./assets/audio (2).mp3"),
           songIndex: 1,
-          fav: false,
+          fav: true,
         },
         {
           songTitle: "Subeme La Radio",
           artistName: "Enrique Iglesias",
           src: require("./assets/audio (3).mp3"),
           songIndex: 2,
-          fav: false,
+          fav: true,
         },
         {
           songTitle: "Mi Gente",
@@ -124,9 +140,168 @@ export default {
           fav: true,
         },
       ],
-    };
-  },   
 
+      currentIndex: 0,
+
+      current: {},
+
+      totalDuration: "0:00",
+
+      progressTime: "0:00",
+      isPlaying: false,
+      progressPercent: 0,
+      currentTime: 0,
+
+      player: new Audio(),
+
+      az: true,
+    };
+  },
+
+  methods: {
+    play() {
+      this.current = this.songs[this.currentIndex];
+      this.player.src = this.current.src;
+      this.player.play();
+      this.player.currentTime = this.currentTime;
+      this.updateInfo();
+      this.checkEnd();
+      this.isPlaying = true;
+    },
+    pause() {
+      this.currentTime = this.player.currentTime;
+      this.isPlaying = false;
+      this.player.pause();
+    },
+    next() {
+      this.currentIndex++;
+      if (this.currentIndex > this.songs.length - 1) {
+        this.currentIndex = 0;
+      }
+
+      this.player.src = this.songs[this.currentIndex].src;
+      this.player.play();
+      this.updateInfo();
+      this.checkEnd();
+      this.isPlaying = true;
+    },
+    prev() {
+      this.currentIndex--;
+      if (this.currentIndex < 0) {
+        this.currentIndex = this.songs.length - 1;
+      }
+
+      this.player.src = this.songs[this.currentIndex].src;
+      this.player.play();
+      this.updateInfo();
+      this.checkEnd();
+      this.isPlaying = true;
+    },
+
+    likeCurrent(index) {
+      if (index) {
+        console.log(index);
+        this.songs[index].fav = !this.songs[index].fav;
+      } else {
+        this.songs[this.currentIndex].fav = !this.songs[this.currentIndex].fav;
+      }
+    },
+
+    formatTime(time) {
+      var mins = ~~((time % 3600) / 60);
+      var secs = ~~time % 60;
+      var result = "";
+      result += "" + mins + ":" + (secs < 10 ? "0" : "");
+      result += "" + secs;
+      return result;
+    },
+
+    checkEnd() {
+      this.player.addEventListener(
+        "ended",
+        function () {
+          this.currentIndex++;
+          if (this.currentIndex > this.songs.length - 1) {
+            this.currentIndex = 0;
+          }
+
+          this.current = this.songs[this.currentIndex];
+          this.player.src = this.current.src;
+          this.player.play();
+          this.isPlaying = true;
+        }.bind(this)
+      );
+    },
+
+    updateInfo() {
+      this.player.addEventListener(
+        "timeupdate",
+        function () {
+          this.progressPercent =
+            (this.player.currentTime / this.player.duration) * 100;
+          const progress = document.querySelector("#progress");
+          progress.style.width = `${this.progressPercent}%`;
+
+          this.progressTime = this.formatTime(this.player.currentTime);
+        }.bind(this)
+      );
+
+      this.player.addEventListener(
+        "canplay",
+        function () {
+          this.totalDuration = this.formatTime(this.player.duration);
+        }.bind(this)
+      );
+    },
+
+    sort() {
+      if (this.az == true) {
+        this.songs.sort((a, b) => {
+          let small_a = a.songTitle.toLowerCase(),
+            small_b = b.songTitle.toLowerCase();
+          this.az = false;
+
+          if (small_a < small_b) {
+            return -1;
+          }
+          if (small_a > small_b) {
+            return 1;
+          }
+          return 0;
+        });
+      } else {
+        this.songs.sort((a, b) => {
+          let small_a = a.artistName.toLowerCase(),
+            small_b = b.artistName.toLowerCase();
+          this.az = true;
+
+          if (small_a < small_b) {
+            return -1;
+          }
+          if (small_a > small_b) {
+            return 1;
+          }
+          return 0;
+        });
+      }
+    },
+
+    setIndex(index) {
+      if (index == this.currentIndex) {
+        if (this.isPlaying == true) {
+          this.pause();
+        } else {
+          this.play();
+        }
+      } else {
+        this.currentIndex = index;
+        this.current = this.songs[index];
+        this.player.src = this.current.src;
+        this.player.play();
+        this.isPlaying = true;
+      }
+    },
+  },
 };
 </script>
 
