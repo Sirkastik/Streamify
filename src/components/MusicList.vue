@@ -11,7 +11,14 @@
           <label for="input">
             <i class="fas fa-plus"></i>
           </label>
-          <input type="file" id="input" multiple accept="audio/*" />
+          <input
+            type="file"
+            @onchange="uploadAudio"
+            v-model="audio_file"
+            id="input"
+            multiple
+            accept="audio/*"
+          />
         </Btn>
         <Btn>
           <form class="example" action="#">
@@ -23,7 +30,9 @@
       <!-- dropdown button -->
       <DropBtn>
         <template v-slot:button>
-          <button class="dropbtn">All Music<i class="fas fa-sort-down"></i></button>
+          <button class="dropbtn">
+            All Music<i class="fas fa-sort-down"></i>
+          </button>
         </template>
         <template v-slot:links>
           <a href="#">All Music</a>
@@ -59,7 +68,7 @@ export default {
   name: "MusicList",
 
   props: {
-    songs: Array
+    songs: Array,
   },
 
   /* components */
@@ -71,6 +80,7 @@ export default {
   data() {
     return {
       favsongs: [],
+      track_file: "",
     };
   },
 
@@ -79,8 +89,30 @@ export default {
       return this.songs.fav == true;
     },
     filter() {
-      this.favsongs
-    }
+      this.favsongs;
+    },
+    
+    uploadAudio() {
+      this.audio_file = this.$refs.file.files[0];
+      formData = new formData();
+      formData.append("track_file", this.audio_file);
+
+      fetch("http://localhost:5000/upload_track", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+            return;
+          }
+          data.response; // {track_link:''},
+        });
+    },
   },
 };
 </script>
@@ -95,7 +127,7 @@ export default {
   border: 2px solid white;
   cursor: pointer;
   display: flex;
-  gap: 5px; 
+  gap: 5px;
 }
 
 /* Links inside the dropdown */
@@ -117,7 +149,6 @@ export default {
   border: 2px solid#fe5046;
   color: #fe5046;
 }
-
 
 #input {
   display: none;

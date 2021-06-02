@@ -101,12 +101,65 @@ export default {
   data() {
     return {
       showRegister: false,
+
+      // to use as v-model in forms
+      username: "",
+      password: "",
     };
   },
 
   methods: {
     toggleModal() {
       this.showRegister = !this.showRegister;
+    },
+
+    signup() {
+      fetch("http://localhost:5000/create_user", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: this.username,
+          password: this.password,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(error);
+            return;
+          }
+          /*
+            id": id,
+            "created_at": created_at,
+            "username": username,
+            "password": password,
+        */
+          data.response; //ia above object
+        })
+        .catch((error) => console.log(error));
+    },
+
+    signin() {
+      fetch(`http://localhost:5000/get_user/${this.username}`, {
+        method: "POST",
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+            return;
+          }
+          /*
+            id": id,
+            "created_at": created_at,
+            "username": username,
+            "password": password,
+        */
+          data.response; //is above object
+        })
+        .catch((error) => console.log(error));
     },
   },
 };
