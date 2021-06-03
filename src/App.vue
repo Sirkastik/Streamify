@@ -47,6 +47,8 @@ export default {
 
   data() {
     return {
+      songsDb: [],
+
       songs: [
         {
           songTitle: "Alarm",
@@ -159,6 +161,34 @@ export default {
   },
 
   methods: {
+    get_tracks() {
+      // populate the songsdb
+      fetch("http://localhost:5000/tracks", {
+        method: "GET",
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+            return;
+          }
+          // save data to songsDB
+          /*list of ojects
+        "id": id,
+        "artist": artist,
+        "title": title,
+        "cover_link": cover_link,
+        "added_by": added_by,
+        "created_at": created_at
+        */
+          this.songsDb = data.request.tracks;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+
     play() {
       this.current = this.songs[this.currentIndex];
       this.player.src = this.current.src;

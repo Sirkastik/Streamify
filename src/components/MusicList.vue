@@ -12,7 +12,13 @@
             <label for="input">
               <i class="fas fa-plus"></i>
             </label>
-            <input type="file" id="input" multiple accept="audio/*" />
+            <input
+              type="file"
+              @onchange="uploadAudio"
+              id="input"
+              multiple
+              accept="audio/*"
+            />
           </form>
         </Btn>
         <Btn>
@@ -107,6 +113,8 @@ export default {
       addedList: false,
 
       favsongs: [],
+
+      file: "",
     };
   },
 
@@ -135,6 +143,28 @@ export default {
   computed: {
     favSongs() {
       return this.songs.filter((song) => song.fav);
+    },
+
+    uploadAudio() {
+      this.file = this.$refs.file.files[0];
+      formData = new formData();
+      formData.append("file", this.file);
+
+      fetch("http://localhost:5000/upload_track", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+            return;
+          }
+          data.response; // {track_link:''},
+        });
     },
   },
 };
