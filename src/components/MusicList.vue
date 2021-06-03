@@ -8,7 +8,7 @@
           <i class="fas fa-sort-alpha-up"></i>
         </Btn>
         <Btn>
-          <form action="#">
+          <form>
             <label for="input">
               <i class="fas fa-plus"></i>
             </label>
@@ -22,9 +22,19 @@
           </form>
         </Btn>
         <Btn>
-          <form class="example" action="#">
-            <input type="text" placeholder="Search music..." name="search" />
-            <button type="submit"><i class="fa fa-search"></i></button>
+          <form>
+            <input
+              v-on:change="showAll"
+              type="text"
+              placeholder="Search music..."
+              v-model="searched"
+            />
+            <button @click="searchSong" type="submit" v-if="!showSearch">
+              <i class="fa fa-search"></i>
+            </button>
+            <button @click="searchSong" v-else>
+              <i class="fas fa-times"></i>
+            </button>
           </form>
         </Btn>
       </div>
@@ -47,15 +57,14 @@
       <ul>
         <li
           v-for="song in favSongs"
-          v-bind:key="song.songIndex"
-          :class="{ fav: song.fav }"
+          v-bind:key="song.id"
+          :class="{ fav: song.isFav }"
         >
-          <div class="left" @click="$emit('playSong', song.songIndex)">
-            {{ song.songTitle }} - {{ song.artistName }}
+          <div class="left" @click="$emit('playSong', song.id)">
+            {{ song.title }} - {{ song.artist }}
           </div>
           <div class="right">
-            <span>{{ song.duration }}</span>
-            <Btn class="favBtn" @click="$emit('likeSong', song.songIndex)">
+            <Btn class="favBtn" @click="$emit('likeSong', song.id)">
               <i class="fas fa-heart"></i>
             </Btn>
           </div>
@@ -68,15 +77,33 @@
       <ul>
         <li
           v-for="song in songs"
-          v-bind:key="song.songIndex"
-          :class="{ fav: song.fav }"
+          v-bind:key="song.id"
+          :class="{ fav: song.isFav }"
         >
-          <div class="left" @click="$emit('playSong', song.songIndex)">
-            {{ song.songTitle }} - {{ song.artistName }}
+          <div class="left" @click="$emit('playSong', song.id)">
+            {{ song.title }} - {{ song.artist }}
           </div>
           <div class="right">
-            <span>{{ song.duration }}</span>
-            <Btn class="favBtn" @click="$emit('likeSong', song.songIndex)">
+            <Btn class="favBtn" @click="$emit('likeSong', song.id)">
+              <i class="fas fa-heart"></i>
+            </Btn>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="songList searched" v-if="showSearch">
+      <ul>
+        <li
+          v-for="song in found"
+          v-bind:key="song.id"
+          :class="{ fav: song.isFav }"
+        >
+          <div class="left" @click="$emit('playSong', song.id)">
+            {{ song.title }} - {{ song.artist }}
+          </div>
+          <div class="right">
+            <Btn class="favBtn" @click="$emit('likeSong', song.id)">
               <i class="fas fa-heart"></i>
             </Btn>
           </div>
@@ -106,13 +133,15 @@ export default {
 
   data() {
     return {
+      showSearch: false,
+
       allSongs: true,
+
+      searched: undefined,
 
       favList: false,
 
       addedList: false,
-
-      favsongs: [],
 
       file: "",
     };
@@ -127,27 +156,23 @@ export default {
       this.allSongs = true;
       this.favList = false;
       this.addedList = false;
+      this.showSearch = false;
     },
     showFav() {
       this.allSongs = false;
       this.addedList = false;
       this.favList = true;
+      this.showSearch = false;
     },
     showAdded() {
       this.addedList = true;
       this.allSongs = false;
       this.favList = false;
-    },
-  },
-
-  computed: {
-    favSongs() {
-      return this.songs.filter((song) => song.fav);
+      this.showSearch = false;
     },
 
     uploadAudio() {
-      this.file = this.$refs.file.files[0];
-      formData = new formData();
+      let formData = new formData();
       formData.append("file", this.file);
 
       fetch("http://localhost:5000/upload_track", {
@@ -165,6 +190,29 @@ export default {
           }
           data.response; // {track_link:''},
         });
+    },
+
+    searchSong() {
+      if (this.showSearch) {
+        this.showSearch = false;
+        this.allSongs = true;
+        this.favList = false;
+        this.addedList = false;
+      } else {
+        this.showSearch = true;
+        this.allSongs = false;
+        this.favList = false;
+        this.addedList = false;
+      }
+    },
+  },
+
+  computed: {
+    favSongs() {
+      return this.songs.filter((song) => song.isFav);
+    },
+    found() {
+      return this.songs.filter((song) => song.title == this.searched);
     },
   },
 };

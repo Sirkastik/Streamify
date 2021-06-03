@@ -113,9 +113,10 @@ def get_tracks():
     if not tracks:
         response['error'] = "no tracks were found in db"
         return json.dumps(response)
-
+       
     response['response'] = tracks
     return json.dumps(response)
+    
 
 
 @app.route("/track/<int:track_id>", methods=["GET"])

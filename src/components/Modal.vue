@@ -1,8 +1,8 @@
 <template>
-  <div class="registration" :class="{ hide: hideModal }">
+  <div class="registration">
     <div class="background"></div>
     <div class="content">
-      <Btn class="close" @click="hide()">
+      <Btn class="close" @click="$emit('close')">
         <i class="fas fa-times"></i>
       </Btn>
       <div class="modalcontainer">
@@ -23,23 +23,13 @@ export default {
     Btn,
   },
 
-  data() {
-    return {
-      hideModal: false,
-    };
-  },
-
-  methods: {
-    hide() {
-      this.hideModal = true;
-    },
-  },
 };
 </script>
 
 <style scoped>
 .close {
-  background: var(--darker);
+  background: white;
+  color: var(--darker);
   position: absolute;
   right: 10px;
   top: 10px;
@@ -50,7 +40,7 @@ export default {
 }
 
 .background {
-  background: var(--gradient);
+  background: var(--darker);
   width: 100vw;
   height: 100vh;
   position: absolute;
@@ -65,19 +55,14 @@ export default {
   align-items: center;
 }
 
-.hide {
-  z-index: -10;
-  opacity: 0;
-}
-
 .modalcontainer {
-  width: 80%;
-  background: var(--darker);
+  width: 100%;
+  background: white;
   padding: 100px;
   border-radius: 10px;
   text-align: center;
   box-shadow: var(--shadow);
-  color: white;
+  color: var(--darker);
   font-size: 1.3rem;
 }
 </style>

@@ -99,7 +99,7 @@ def add_track(conn, artist, title, track_link, added_by=0):
     """
 
     sql = ''' INSERT INTO tracks (artist,title,track_link,added_by)
-	VALUES	(?,?,?,?,?)'''
+	VALUES	(?,?,?,?)'''
     cur = conn.cursor()
 
     try:
@@ -272,7 +272,6 @@ def select_track(conn, track_id):
             "id": track_id,
             "artist": artist,
             "title": title,
-            "cover_link": cover_link,
             "added_by": added_by,
             "created_at": created_at
         })
@@ -286,7 +285,7 @@ def select_tracks(conn):
     :return: list of track object
     """
 
-    sql = 'SELECT id,artist,title,cover_link,added_by,created_at FROM tracks'
+    sql = 'SELECT id,artist,title,track_link, added_by,created_at FROM tracks'
     cur = conn.cursor()
     try:
         cur.execute(sql)
@@ -294,12 +293,12 @@ def select_tracks(conn):
         return (False, str(e))
 
     tracks = []
-    for(id, artist, title, cover_link, added_by, created_at) in cur:
+    for(id, artist, title, track_link, added_by, created_at) in cur:
         tracks.append({
             "id": id,
             "artist": artist,
             "title": title,
-            "cover_link": cover_link,
+            "track_link":track_link,
             "added_by": added_by,
             "created_at": created_at
         })
@@ -351,8 +350,8 @@ def init_user(conn):
 
 
 def init_tracks(conn):
-    f = open('./src/assets/mps.json')
-    data = json.loads(f)
+    f = open('./src/assets/mp3.json')
+    data = json.load(f)
 
     for track in data['tracks']:
         if not add_track(conn, track['artist'], track['title'], track['track_link']):

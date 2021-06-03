@@ -3,67 +3,93 @@
    {
       "title": "Alarm",
       "artist": "Anne Marie",
-      "track_link": "./assets/mp3/audio (1).mp3"
+      "track_link": "./assets/mp3/audio (1).mp3",
+      "track_index": 0,
+      "isFav": false
     },
     {
       "title": "Hold On",
       "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (2).mp3"
+      "track_link": "./assets/mp3/audio (2).mp3",
+      "track_index": 1,
+      "isFav": false
     },
 	{
-      "title": "Alarm",
-      "artist": "Anne Marie",
-      "track_link": "./assets/mp3/audio (3).mp3"
+      "title": "Subeme La Radio",
+      "artist": "Enrique Iglesias",
+      "track_link": "./assets/mp3/audio (3).mp3",
+      "track_index": 2,
+      "isFav": true
     },
     {
-      "title": "Hold On",
-      "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (4).mp3"
+      "title": "Mi Gente",
+      "artist": "J Balvin_ Willy William",
+      "track_link": "./assets/mp3/audio (4).mp3",
+      "track_index": 3,
+      "isFav": false
     },
 	{
-      "title": "Alarm",
-      "artist": "Anne Marie",
-      "track_link": "./assets/mp3/audio (5).mp3"
+      "title": "If the World was Ending",
+      "artist": "JP Saxe",
+      "track_link": "./assets/mp3/audio (5).mp3",
+      "track_index": 4,
+      "isFav": false
     },
     {
-      "title": "Hold On",
-      "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (6).mp3"
+      "title": "You Say",
+      "artist": "Lauren Daigle",
+      "track_link": "./assets/mp3/audio (6).mp3",
+      "track_index": 5,
+      "isFav": false
     },
 	{
-      "title": "Alarm",
-      "artist": "Anne Marie",
-      "track_link": "./assets/mp3/audio (7).mp3"
+      "title": "Maybe Don't",
+      "artist": "Maisie Peters ft JP Saxe",
+      "track_link": "./assets/mp3/audio (7).mp3",
+      "track_index": 6,
+      "isFav": false
     },
     {
-      "title": "Hold On",
-      "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (8).mp3"
+      "title": "Care For You",
+      "artist": "Mario",
+      "track_link": "./assets/mp3/audio (8).mp3",
+      "track_index": 7,
+      "isFav": false
     },
 	{
-      "title": "Alarm",
-      "artist": "Anne Marie",
-      "track_link": "./assets/mp3/audio (9).mp3"
+      "title": "Scared To Be Lonely",
+      "artist": "Martin Garrix_Dua Lipa",
+      "track_link": "./assets/mp3/audio (9).mp3",
+      "track_index": 8,
+      "isFav": false
     },
     {
-      "title": "Hold On",
-      "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (10).mp3"
+      "title": "Perfect",
+      "artist": "Ed Sheeran",
+      "track_link": "./assets/mp3/audio (10).mp3",
+      "track_index": 9,
+      "isFav": false
     },
 	{
-      "title": "Alarm",
-      "artist": "Anne Marie",
-      "track_link": "./assets/mp3/audio (11).mp3"
+      "title": "Let Me Live",
+      "artist": "Rudimental_Major Lazer ft Anne Marie",
+      "track_link": "./assets/mp3/audio (11).mp3",
+      "track_index": 10,
+      "isFav": false
     },
     {
-      "title": "Hold On",
-      "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (12).mp3"
+      "title": "Fire on fire",
+      "artist": "Sam Smith",
+      "track_link": "./assets/mp3/audio (12).mp3",
+      "track_index": 11,
+      "isFav": false
     },
 	{
-      "title": "Hold On",
-      "artist": "Chord Overstreet",
-      "track_link": "./assets/mp3/audio (13).mp3"
+      "title": "Snowman",
+      "artist": "Sia",
+      "track_link": "./assets/mp3/audio (13).mp3",
+      "track_index": 12,
+      "isFav": true
     }
   ]
 }

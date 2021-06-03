@@ -47,101 +47,13 @@ export default {
 
   data() {
     return {
-      songsDb: [],
+      file: require("./assets/mp3/audio (1).mp3"),
 
-      songs: [
-        {
-          songTitle: "Alarm",
-          artistName: "Anne Marie",
-          src: require("./assets/audio (1).mp3"),
-          songIndex: 0,
-          fav: false,
-        },
-        {
-          songTitle: "Hold On",
-          artistName: "Chord Overstreet",
-          src: require("./assets/audio (2).mp3"),
-          songIndex: 1,
-          fav: false,
-        },
-        {
-          songTitle: "Subeme La Radio",
-          artistName: "Enrique Iglesias",
-          src: require("./assets/audio (3).mp3"),
-          songIndex: 2,
-          fav: false,
-        },
-        {
-          songTitle: "Mi Gente",
-          artistName: "J Balvin_ Willy William",
-          src: require("./assets/audio (4).mp3"),
-          songIndex: 3,
-          fav: false,
-        },
-        {
-          songTitle: "If the World was Ending",
-          artistName: "JP Saxe",
-          src: require("./assets/audio (5).mp3"),
-          songIndex: 4,
-          fav: false,
-        },
-        {
-          songTitle: "You Say",
-          artistName: "Lauren Daigle",
-          src: require("./assets/audio (6).mp3"),
-          songIndex: 5,
-          fav: false,
-        },
-        {
-          songTitle: "Maybe Don't",
-          artistName: "Maisie Peters ft JP Saxe",
-          src: require("./assets/audio (7).mp3"),
-          songIndex: 6,
-          fav: false,
-        },
-        {
-          songTitle: "Care For You",
-          artistName: "Mario",
-          src: require("./assets/audio (8).mp3"),
-          songIndex: 7,
-          fav: false,
-        },
-        {
-          songTitle: "Scared To Be Lonely",
-          artistName: "Martin Garrix_Dua Lipa",
-          src: require("./assets/audio (9).mp3"),
-          songIndex: 8,
-          fav: false,
-        },
-        {
-          songTitle: "Perfect",
-          artistName: "Ed Sheeran",
-          src: require("./assets/audio (10).mp3"),
-          songIndex: 9,
-          fav: false,
-        },
-        {
-          songTitle: "Let Me Live",
-          artistName: "Rudimental_Major Lazer ft Anne Marie",
-          src: require("./assets/audio (11).mp3"),
-          songIndex: 10,
-          fav: false,
-        },
-        {
-          songTitle: "Fire on fire",
-          artistName: "Sam Smith",
-          src: require("./assets/audio (12).mp3"),
-          songIndex: 11,
-          fav: false,
-        },
-        {
-          songTitle: "Snowman",
-          artistName: "Sia",
-          src: require("./assets/audio (13).mp3"),
-          songIndex: 12,
-          fav: true,
-        },
-      ],
+      player: undefined,
+
+      songs: [],
+
+      num: "1",
 
       currentIndex: 0,
 
@@ -154,49 +66,47 @@ export default {
       progressPercent: 0,
       currentTime: 0,
 
-      player: new Audio(),
-
       az: true,
     };
   },
 
-  methods: {
-    get_tracks() {
-      // populate the songsdb
-      fetch("http://localhost:5000/tracks", {
-        method: "GET",
-        credentials: "include",
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.error) {
-            console.log(data.error);
-            return;
-          }
-          // save data to songsDB
-          /*list of ojects
+  created() {
+    // populate the songs
+    fetch("http://localhost:5000/tracks", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          console.log(data.error);
+          return;
+        }
+        // save data to songs
+        /*list of ojects
         "id": id,
         "artist": artist,
         "title": title,
-        "cover_link": cover_link,
+        "track_link":track_link,
         "added_by": added_by,
         "created_at": created_at
         */
-          this.songsDb = data.request.tracks;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
+        this.songs = data.response[1];
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  },
 
+  methods: {
     play() {
-      this.current = this.songs[this.currentIndex];
-      this.player.src = this.current.src;
+      this.player = new Audio()
       this.player.play();
       this.player.currentTime = this.currentTime;
       this.updateInfo();
       this.checkEnd();
       this.isPlaying = true;
+      console.log(this.player.src);
     },
     pause() {
       this.currentTime = this.player.currentTime;
@@ -208,9 +118,7 @@ export default {
       if (this.currentIndex > this.songs.length - 1) {
         this.currentIndex = 0;
       }
-
-      this.player.src = this.songs[this.currentIndex].src;
-      this.player.play();
+      this.player.play(this.songs[this.currentIndex].track_link);
       this.updateInfo();
       this.checkEnd();
       this.isPlaying = true;
@@ -221,19 +129,19 @@ export default {
         this.currentIndex = this.songs.length - 1;
       }
 
-      this.player.src = this.songs[this.currentIndex].src;
-      this.player.play();
+      this.player.play(this.songs[this.currentIndex].track_link);
       this.updateInfo();
       this.checkEnd();
       this.isPlaying = true;
     },
 
-    likeCurrent(index) {
-      if (index) {
-        console.log(index);
-        this.songs[index].fav = !this.songs[index].fav;
+    likeCurrent(id) {
+      if (id) {
+        let index = id - 1;
+        this.songs[index].isFav = !this.songs[index].isFav;
       } else {
-        this.songs[this.currentIndex].fav = !this.songs[this.currentIndex].fav;
+        this.songs[this.currentIndex].isFav = !this.songs[this.currentIndex]
+          .isFav;
       }
     },
 
@@ -255,9 +163,7 @@ export default {
             this.currentIndex = 0;
           }
 
-          this.current = this.songs[this.currentIndex];
-          this.player.src = this.current.src;
-          this.player.play();
+          this.player.play(this.songs[this.currentIndex]);
           this.isPlaying = true;
         }.bind(this)
       );
@@ -287,8 +193,8 @@ export default {
     sort() {
       if (this.az == true) {
         this.songs.sort((a, b) => {
-          let small_a = a.songTitle.toLowerCase(),
-            small_b = b.songTitle.toLowerCase();
+          let small_a = a.title.toLowerCase(),
+            small_b = b.title.toLowerCase();
           this.az = false;
 
           if (small_a < small_b) {
@@ -301,8 +207,8 @@ export default {
         });
       } else {
         this.songs.sort((a, b) => {
-          let small_a = a.artistName.toLowerCase(),
-            small_b = b.artistName.toLowerCase();
+          let small_a = a.artist.toLowerCase(),
+            small_b = b.artist.toLowerCase();
           this.az = true;
 
           if (small_a < small_b) {
@@ -317,20 +223,59 @@ export default {
     },
 
     setIndex(index) {
-      if (index == this.currentIndex) {
+      if (index - 1 == this.currentIndex) {
         if (this.isPlaying == true) {
           this.pause();
         } else {
           this.play();
         }
       } else {
-        this.currentIndex = index;
+        this.currentIndex = index - 1;
+        console.log(this.songs[this.currentIndex]);
         this.current = this.songs[index];
-        this.player.src = this.current.src;
-        this.player.play();
+        this.player.play(this.current.track_link);
         this.isPlaying = true;
       }
     },
+
+    addToFavorites(){
+      fetch("http://localhost:5000/favorites",{
+        method:'POST',
+        creadentials:'include',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: "todo", // userID
+          track_id: "todo", //trackID
+        })
+      }).then(async (response)=>response.json()).then((data)=>{
+        if (data.error){
+          console.log(data.error)
+        }else{
+          alert(data.succesful)
+        }
+      })
+    },
+
+    getFavorites(){
+      fetch("http://localhost:5000/favorites/"+"todo:user_id",{
+        method:'GET',
+        creadentials:'include',
+      }).then(async (response)=>response.json()).then((data)=>{
+        if (data.error){
+          console.log(data.error)
+        }else{
+          /**
+           * "id": id,
+            "artist": artist,
+            "title": title,
+            "track_link":track_link,
+            "added_by": added_by,
+            "created_at": created_at
+           */
+          data.response
+        }
+      })
+    }
   },
 };
 </script>

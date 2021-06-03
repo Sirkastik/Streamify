@@ -2,8 +2,8 @@
   <div class="player" :class="{ play: progressPercent != 0 && isPlaying }" > 
     <!-- song info -->
     <div class="info">
-      <h3 id="songTitle"> {{ songs[index].songTitle }} </h3> 
-      <h4 id="artistName"> {{ songs[index].artistName }} </h4>  
+      <h3 id="title"> {{ songs[index].title }} </h3>  <!-- {{ songs[index].title }} -->
+      <h4 id="artist"> {{ songs[index].artist }} </h4>  <!-- {{ songs[index].artist }} -->
     </div>
 
     <!-- cover image -->
@@ -22,8 +22,8 @@
 
     <!-- control buttons -->
     <div id="controls">
-      <Btn id="shuffle" @click="emitshuffle">
-        <i class="fas fa-random"></i>
+      <Btn id="delete">
+        <i class="fas fa-trash"></i>
       </Btn>
       <Btn id="prev" @click="emitprev">
         <i class="fas fa-step-backward"></i>  
@@ -37,7 +37,7 @@
       <Btn id="next" @click="emitnext">  
         <i class="fas fa-step-forward"></i>
       </Btn>
-      <Btn id="fav" @click="$emit('likeCurrent')" :class="{ fav: songs[index].fav }" >
+      <Btn id="fav" @click="$emit('likeCurrent')" > <!-- :class="{ fav: songs[index].isFav }" -->
         <i class="fas fa-heart"></i>
       </Btn>
     </div>
@@ -84,7 +84,6 @@ export default {
       this.$emit('playNext');
     },
     emitplay() {
-      console.log('play');
       this.$emit('playCurrent');
     },
     emitpause() {
@@ -103,6 +102,10 @@ export default {
 
 <style scoped>
 
+#delete {
+  color: grey;
+}
+
 .fav {
   color: #fe5046;
 } 
@@ -119,8 +122,8 @@ export default {
   height: 84vh;
 }
 
-#songTitle,
-#artistName {
+#title,
+#artist {
   text-align: center;
   color: white;
   padding: 5px;
