@@ -171,15 +171,17 @@ export default {
       this.showSearch = false;
     },
 
-    uploadAudio() {
-      let formData = new formData();
-      formData.append("file", this.file);
+    uploadAudio(event) {
+      let files = event.target.files;
+      const formData = new FormData();
+      formData.append("track_file", files[0]);
 
       fetch("http://localhost:5000/upload_track", {
         method: "POST",
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        credentials: "include",
         body: formData,
       })
         .then((response) => response.json())
@@ -189,7 +191,56 @@ export default {
             return;
           }
           data.response; // {track_link:''},
+
+          // submit other form data
+          this.addTrack(artist, track_link, title, added_by); // TODO: args
         });
+    },
+
+    addTrack(artist, track_link, title, added_by) {
+      fetch("http://localhost:500/tracks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          artist: artist,
+          title: title,
+          track_link: track_link,
+          added_by: added_by,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            alert(data.error);
+          }
+          alert(data.response);
+        })
+        .catch((error) => console.log(error));
+    },
+
+    delete_audio(track_id, user_id) {
+      fetch("http://localhost:5000/track", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          track_id: track_id,
+          user_id: user_id,
+        }),
+      })
+        .then((response) => response.json)
+        .then((data) => {
+          if (data.error) {
+            console.log(error);
+          }
+          alert(data.response);
+        })
+        .catch((error) => console.log(error));
     },
 
     searchSong() {

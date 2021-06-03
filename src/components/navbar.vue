@@ -51,7 +51,7 @@
       </template>
     </DropBtn>
     <!--  Sign up modal -->
-    <Modal @close="hideModal"  class="modal" v-if="showRegister">
+    <Modal @close="hideModal" class="modal" v-if="showRegister">
       <form action="#" method="POST">
         <h2>Sign Up</h2>
         <div class="input-field focus username">
@@ -81,14 +81,21 @@
             <input class="input" v-model="passConfirm" type="password" />
           </div>
         </div>
-        <input type="button" @click="hideModal" class="btn" name="button" value="Register" id="register" />
+        <input
+          type="button"
+          @click="hideModal"
+          class="btn"
+          name="button"
+          value="Register"
+          id="register"
+        />
         <p>
           Already have an account?
-            <span class="link" @click="switchModal">Sign In</span>
+          <span class="link" @click="switchModal">Sign In</span>
         </p>
       </form>
     </Modal>
-    <Modal @close="hideModal"  class="modal" v-if="showLogin">
+    <Modal @close="hideModal" class="modal" v-if="showLogin">
       <form action="#" method="POST">
         <h2>Sign In</h2>
         <div class="input-field focus username">
@@ -109,10 +116,17 @@
             <input class="input" v-model="password" type="password" />
           </div>
         </div>
-        <input type="button" @click="hideModal" class="btn" name="button" value="Login" id="register" />
+        <input
+          type="button"
+          @click="hideModal"
+          class="btn"
+          name="button"
+          value="Login"
+          id="register"
+        />
         <p>
           Already have an account?
-            <span class="link" @click="switchModal">Sign In</span>
+          <span class="link" @click="switchModal">Sign In</span>
         </p>
       </form>
     </Modal>
@@ -140,6 +154,9 @@ export default {
       username: "",
       password: "",
       passConfirm: "",
+
+      // sign in/up reponse
+      user_id: 0,
     };
   },
 
@@ -151,6 +168,11 @@ export default {
     switchModal() {
       this.showRegister = !this.showRegister;
       this.showLogin = !this.showLogin;
+    },
+
+    signout() {
+      this.$store.dispatch("update_user");
+      document.cookie = "id=;username=;Max-Age=-99999999;";
     },
 
     signup() {
@@ -175,14 +197,38 @@ export default {
             "username": username,
             "password": password,
         */
-          data.response; //ia above object
+          data.response; //is above object
+          document.cookie = `id=${data.response.id};user=${this.username}`;
+          this.$store.dispatch("update_user");
         })
         .catch((error) => console.log(error));
+    },
+
+    deleteUser(user_id) {
+      if (user_id) {
+        fetch("http://localhost:5000/delete_user/" + user_id, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          credentials: "include",
+        })
+          .then(async (response) => response.json)
+          .then((data) => {
+            if (data.error) {
+              console.log(data.error);
+            }
+            alert(data.response);
+          });
+      }
     },
 
     signin() {
       fetch(`http://localhost:5000/get_user/${this.username}`, {
         method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
         credentials: "include",
       })
         .then((response) => response.json())
@@ -198,6 +244,8 @@ export default {
             "password": password,
         */
           data.response; //is above object
+          document.cookie = `id=${data.response.id};user=${this.username}`;
+          this.$store.dispatch("update_user");
         })
         .catch((error) => console.log(error));
     },
@@ -211,7 +259,6 @@ export default {
 </script>
 
 <style scoped>
-
 /* form style */
 
 form h2 {
@@ -247,7 +294,6 @@ form h2 {
   align-items: center;
 }
 
-
 .input-field > div {
   position: relative;
   height: 45px;
@@ -260,12 +306,12 @@ form h2 {
   transform: translateY(-50%);
   color: var(--main);
   font-size: 1.2rem;
-  transition: .3s;
+  transition: 0.3s;
 }
 
 .input {
   font-size: 1.2rem;
-  position:absolute;
+  position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
@@ -290,7 +336,7 @@ form h2 {
   font-size: 1.2rem;
   outline: none;
   border: none;
-  transition: .5s;
+  transition: 0.5s;
 }
 
 .btn:hover {
@@ -298,10 +344,9 @@ form h2 {
   color: var(--darker);
 }
 
-
 .link {
   cursor: pointer;
-  transition: .5s;
+  transition: 0.5s;
   color: var(--accent);
 }
 
