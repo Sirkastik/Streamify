@@ -204,6 +204,22 @@ def remove_user_fav_tracks(conn, user_id):
     return (True,)
 
 
+def remove_track(conn, user_id, track_id):
+    """
+    Deletes a user track that was added by user
+    :param user_id:
+    :return success:
+    """
+
+    sql = 'DELETE FROM tracks WHERE id = ? AND added_by = ?'
+    cur = conn.cursor()
+    try:
+        cur.execute(sql, (track_id, user_id,))
+    except Error as e:
+        return (False, str(e))
+    return (True,)
+
+
 def remove_user_added_tracks(conn, user_id):
     """
     Deletes all tracks that were added by user
@@ -298,7 +314,7 @@ def select_tracks(conn):
             "id": id,
             "artist": artist,
             "title": title,
-            "track_link":track_link,
+            "track_link": track_link,
             "added_by": added_by,
             "created_at": created_at
         })

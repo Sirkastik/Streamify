@@ -113,10 +113,9 @@ def get_tracks():
     if not tracks:
         response['error'] = "no tracks were found in db"
         return json.dumps(response)
-       
+
     response['response'] = tracks
     return json.dumps(response)
-    
 
 
 @app.route("/track/<int:track_id>", methods=["GET"])
@@ -134,6 +133,27 @@ def get_track(track_id):
         return json.dumps(response)
 
     response['response'] = track
+    return json.dumps(response)
+
+
+@app.route("/track ", methods=["DELETE"])
+def delete_track():
+    """
+    Deletes the track provided the track_id and user_id
+    """
+
+    data = request.get_json()
+    user_id = data["user_id"]
+    track_id = data["track_id"]
+
+    response = {'response': None, 'error': None}
+    conn = get_db()
+    track = setup_db.remove_track(conn, user_id, track_id)
+    if not track[0]:
+        response['error'] = "track was not found"
+        return json.dumps(response)
+
+    response['response'] = "track was successfully deleted"
     return json.dumps(response)
 
 
@@ -162,20 +182,16 @@ def add_track():
     data = request.get_json()
     artist = data["artist"]
     title = data["title"]
-    cover_link = data["cover_link"]
     track_link = data["track_link"]
-    duration = data["duration"]
     added_by = data["added_by"]
 
     response = {'response': None, 'error': None}
-    if not cover_link:
-        cover_link = 'default cover'  # TODO
-    if not (artist or title or duration or added_by):
+    if not (artist or title or added_by):
         response['error'] = "request field(s) are/is missing, check your request body"
         return json.dumps(response)
 
     conn = get_db()
-    if setup_db.add_track(conn, artist, title, cover_link, track_link, duration, added_by):
+    if setup_db.add_track(conn, artist, title, track_link, added_by):
         response["response"] = "success"
         return json.dumps(response)
     else:

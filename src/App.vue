@@ -74,6 +74,7 @@ export default {
     // populate the songs
     fetch("http://localhost:5000/tracks", {
       method: "GET",
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
     })
       .then((response) => response.json())
@@ -100,7 +101,7 @@ export default {
 
   methods: {
     play() {
-      this.player = new Audio()
+      this.player = new Audio();
       this.player.play();
       this.player.currentTime = this.currentTime;
       this.updateInfo();
@@ -238,33 +239,60 @@ export default {
       }
     },
 
-    addToFavorites(){
-      fetch("http://localhost:5000/favorites",{
-        method:'POST',
-        creadentials:'include',
+    rmFromfavorites(user_id, track_id) {
+      fetch("http://localhost:5000/favorites", {
+        method: "DELETE",
+        creadentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          user_id: "todo", // userID
-          track_id: "todo", //trackID
-        })
-      }).then(async (response)=>response.json()).then((data)=>{
-        if (data.error){
-          console.log(data.error)
-        }else{
-          alert(data.succesful)
-        }
+          user_id: user_id, 
+          track_id: track_id,
+        }),
       })
+        .then(async (response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+          } else {
+            alert(data.succesful);
+          }
+        });
     },
 
-    getFavorites(){
-      fetch("http://localhost:5000/favorites/"+"todo:user_id",{
-        method:'GET',
-        creadentials:'include',
-      }).then(async (response)=>response.json()).then((data)=>{
-        if (data.error){
-          console.log(data.error)
-        }else{
-          /**
+    addToFavorites(user_id, track_id) {
+      fetch("http://localhost:5000/favorites", {
+        method: "POST",
+        creadentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user_id, // userID
+          track_id: track_id, //trackID
+        }),
+      })
+        .then(async (response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+          } else {
+            alert(data.response);
+          }
+        });
+    },
+
+    getFavorites(favorites) {
+      // favorites is mutated, not arguement
+      // favorites:[] or favorites = [];; as this.favorites..
+      fetch("http://localhost:5000/favorites/" + "todo:user_id", {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+        creadentials: "include",
+      })
+        .then(async (response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            console.log(data.error);
+          } else {
+            /**
            * "id": id,
             "artist": artist,
             "title": title,
@@ -272,10 +300,20 @@ export default {
             "added_by": added_by,
             "created_at": created_at
            */
-          data.response
-        }
-      })
-    }
+            data.response.map((track) => {
+              favorites.push({
+                id: track.id,
+                artist: track.artist,
+                title: track.title,
+                track_link: track.track_link,
+                added_by: track.added_by,
+                created_at: created_at,
+              });
+            });
+          }
+        })
+        .catch((error) => console.log(error));
+    },
   },
 };
 </script>
